@@ -1,5 +1,7 @@
 package com.raiTech.controller;
 
+import com.raiTech.dto.CategoryDto;
+import com.raiTech.dto.CategoryResponse;
 import com.raiTech.entity.Category;
 import com.raiTech.service.impl.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +18,9 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @PostMapping("/save-category")
-    public ResponseEntity<?>saveCategory(@RequestBody Category category) {
+    public ResponseEntity<?>saveCategory(@RequestBody CategoryDto categorydto) {
 
-        Boolean saveCategory = categoryService.saveCategory(category);
+        Boolean saveCategory = categoryService.saveCategory(categorydto);
         if (saveCategory) {
             return new ResponseEntity<>("Saved Successfully", HttpStatus.CREATED);
         }else {
@@ -34,6 +36,17 @@ public class CategoryController {
             return ResponseEntity.noContent().build();
         }else {
             return new ResponseEntity<>(allCategory, HttpStatus.OK);
+        }
+    }
+
+    @GetMapping("/active-category")
+    public ResponseEntity<?>getActiveCategory() {
+
+        List<CategoryResponse> activeCategory = categoryService.getActiveCategory();
+        if (CollectionUtils.isEmpty(activeCategory)){
+            return ResponseEntity.noContent().build();
+        }else {
+            return new ResponseEntity<>(activeCategory, HttpStatus.OK);
         }
     }
 
