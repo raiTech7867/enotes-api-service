@@ -3,7 +3,9 @@ package com.raiTech.controller;
 import com.raiTech.dto.CategoryDto;
 import com.raiTech.dto.CategoryResponse;
 import com.raiTech.entity.Category;
+import com.raiTech.exception.ResourceNotFoundException;
 import com.raiTech.service.impl.CategoryService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +22,7 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @PostMapping("/save")
-    public ResponseEntity<?> saveCategory(@RequestBody CategoryDto categorydto) {
-
+    public ResponseEntity<?> saveCategory(@Valid @RequestBody CategoryDto categorydto) {
         Boolean saveCategory = categoryService.saveCategory(categorydto);
         if (saveCategory) {
             return new ResponseEntity<>("Saved Successfully", HttpStatus.CREATED);
@@ -53,8 +54,7 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getCategoryDetailsById(@PathVariable Integer id) {
-
+    public ResponseEntity<?> getCategoryDetailsById(@PathVariable Integer id) throws Exception{
         CategoryDto categoryDto = categoryService.getCategoryById(id);
         if (ObjectUtils.isEmpty(categoryDto)) {
             return new ResponseEntity<>("Category Not Found with Id="+id, HttpStatus.NOT_FOUND);

@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import com.raiTech.dto.CategoryDto;
 import com.raiTech.dto.CategoryResponse;
+import com.raiTech.exception.ResourceNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -78,14 +79,11 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public CategoryDto getCategoryById(Integer id) {
-
-        Optional<Category> findByCategory=categoryRepo.findByIdAndIsDeletedFalse(id);
-        if(findByCategory.isPresent()) {
-            Category category=findByCategory.get();
+    public CategoryDto getCategoryById(Integer id) throws Exception{
+       Category category=categoryRepo.findByIdAndIsDeletedFalse(id).orElseThrow(()->new ResourceNotFoundException("Category not found with id"+id));
+        if(!ObjectUtils.isEmpty(category)) {
             return mapper.map(category, CategoryDto.class);
         }
-
         return null;
     }
 

@@ -1,5 +1,6 @@
 package com.raiTech.dto;
 
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,9 +13,15 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CategoryDto {
+
     private Integer id;
+    @NotBlank
+    @Size(min = 10, max = 100)
     private String name;
+    @NotBlank
+    @Size(min = 10, max = 100)
     private String description;
+    @NotNull
     private Boolean isActive;
     private Integer createdBy;
     private Date createdOn;
