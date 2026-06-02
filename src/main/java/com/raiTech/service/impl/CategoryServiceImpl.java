@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import com.raiTech.dto.CategoryDto;
 import com.raiTech.dto.CategoryResponse;
+import com.raiTech.exception.ExistDataException;
 import com.raiTech.exception.ResourceNotFoundException;
 import com.raiTech.util.Validation;
 import org.modelmapper.ModelMapper;
@@ -34,6 +35,11 @@ public class CategoryServiceImpl implements CategoryService {
 
         //validation checking
         validation.categoryValidation(categorydto);
+         //Check Category Exist Or Not
+        Boolean exist=categoryRepo.existsByName(categorydto.getName().trim());
+       if (exist) {
+           throw new ExistDataException("Category with name " + categorydto.getName() + " already exists");
+       }
 
         Category category=mapper.map(categorydto, Category.class);
 
