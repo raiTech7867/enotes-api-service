@@ -8,6 +8,7 @@ import java.util.Optional;
 import com.raiTech.dto.CategoryDto;
 import com.raiTech.dto.CategoryResponse;
 import com.raiTech.exception.ResourceNotFoundException;
+import com.raiTech.util.Validation;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,19 +26,20 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired
     private ModelMapper mapper;
 
+    @Autowired
+    private Validation validation;
+
 	@Override
 	public Boolean saveCategory(CategoryDto categorydto) {
 
+        //validation checking
+        validation.categoryValidation(categorydto);
 
-//       Category category=new Category();
-//       category.setName(categorydto.getName());
-//       category.setDescription(categorydto.getDescription());
-//       category.setIsActive(categorydto.getIsActive());
         Category category=mapper.map(categorydto, Category.class);
 
         if (ObjectUtils.isEmpty(category.getId())) {
             category.setIsDeleted(false);
-            category.setCreatedBy(1);
+           // category.setCreatedBy(1);
             category.setCreatedOn(new Date());
         }else {
             updateCategory(category);
@@ -58,8 +60,8 @@ public class CategoryServiceImpl implements CategoryService {
             category.setCreatedBy(existCategory.getCreatedBy());
             category.setCreatedOn(existCategory.getCreatedOn());
             category.setIsDeleted(existCategory.getIsDeleted());
-            category.setUpdatedBy(1);
-            category.setUpdatedOn(new Date());
+           // category.setUpdatedBy(1);
+            //category.setUpdatedOn(new Date());
         }
 
     }
