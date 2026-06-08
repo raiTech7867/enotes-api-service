@@ -11,5 +11,4 @@ public class EnotesApiBackendServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(EnotesApiBackendServiceApplication.class, args);
 	}
-
 }
