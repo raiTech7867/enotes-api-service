@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.io.FileNotFoundException;
+
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -32,4 +34,10 @@ public class GlobalExceptionHandler {
        // return new ResponseEntity<>(e.getError(),HttpStatus.BAD_REQUEST);
         return CommonUtil.createErrorResponse(e.getError(), HttpStatus.BAD_REQUEST);
     }
+    @ExceptionHandler(FileNotFoundException.class)
+    public ResponseEntity<?> handleFileNotFoundException(FileNotFoundException e) {
+        // return new ResponseEntity<>(e.getError(),HttpStatus.BAD_REQUEST);
+        return CommonUtil.createErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
 }

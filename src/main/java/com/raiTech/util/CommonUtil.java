@@ -1,8 +1,11 @@
 package com.raiTech.util;
 
 import com.raiTech.handler.GenericResponse;
+import org.apache.commons.io.FilenameUtils;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 public class CommonUtil {
@@ -30,5 +33,22 @@ public class CommonUtil {
         GenericResponse response = GenericResponse.builder()
                 .responseStatus(status).status("Error").message(message).build();
         return response.create();
+    }
+
+    public static  String getContentType(String originalFileName) {
+        String extension = FilenameUtils.getExtension(originalFileName);
+        switch (extension) {
+            case "pdf":
+                return "application/pdf";
+                case "text":
+                    return "text/plain";
+            case "png":
+                return "image/png";
+                case "jpeg":
+                    return "image/jpeg";
+            default:
+                return "application/octet-stream";
+
+        }
     }
 }

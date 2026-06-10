@@ -14,11 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -152,5 +155,20 @@ public class NotesServiceImpl implements NotesService {
                     return dto;
                 })
                 .toList();
+    }
+
+    @Override
+    public byte[] downLoadFile(FileDetails fileDetails) throws Exception {
+
+
+        InputStream io=new FileInputStream(fileDetails.getPath());
+
+        return StreamUtils.copyToByteArray(io);
+    }
+
+    @Override
+    public FileDetails getFileDetails(Integer id) throws Exception {
+        FileDetails fileDetails=fileRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("File is not available"));
+        return fileDetails;
     }
 }
