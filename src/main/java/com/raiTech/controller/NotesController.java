@@ -1,7 +1,9 @@
 package com.raiTech.controller;
 
 import com.raiTech.dto.NotesDto;
+import com.raiTech.dto.NotesResponse;
 import com.raiTech.entity.FileDetails;
+import com.raiTech.entity.Notes;
 import com.raiTech.service.add.NotesService;
 import com.raiTech.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +53,17 @@ public class NotesController {
         headers.setContentType(MediaType.parseMediaType(contentType));
         headers.setContentDispositionFormData("attachment", fileDetails.getOriginalFileName());
         return  ResponseEntity.ok().headers(headers).body(data);
+
+    }
+    @GetMapping("/user-notes")
+    public ResponseEntity<?>getAllNotesByUser(@RequestParam(name = "pageNo",defaultValue = "0") Integer pageNo,
+                                                  @RequestParam(name = "pageSize",defaultValue = "10") Integer pageSize) throws Exception{
+        Integer userId=1;
+        NotesResponse notes=notesService.getAllNotesByUser(userId,pageNo,pageSize);
+        if(ObjectUtils.isEmpty(notes)){
+            return ResponseEntity.noContent().build();
+        }
+        return CommonUtil.createBuildResponse(notes, HttpStatus.OK);
 
     }
 

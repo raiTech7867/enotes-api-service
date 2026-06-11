@@ -1,8 +1,8 @@
 package com.raiTech.service.add;
 
 import com.raiTech.dto.NotesDto;
+import com.raiTech.dto.NotesResponse;
 import com.raiTech.entity.FileDetails;
-import com.raiTech.exception.ResourceNotFoundException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -15,4 +15,6 @@ public interface NotesService {
     byte[] downLoadFile(FileDetails fileDetails) throws Exception;
 
     FileDetails getFileDetails(Integer id) throws Exception;
+
+    NotesResponse getAllNotesByUser(Integer userId, Integer pageNo, Integer pageSize);
 }

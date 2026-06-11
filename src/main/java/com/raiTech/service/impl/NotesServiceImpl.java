@@ -1,6 +1,7 @@
 package com.raiTech.service.impl;
 
 import com.raiTech.dto.NotesDto;
+import com.raiTech.dto.NotesResponse;
 import com.raiTech.entity.FileDetails;
 import com.raiTech.entity.Notes;
 import com.raiTech.exception.ResourceNotFoundException;
@@ -12,6 +13,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StreamUtils;
@@ -23,9 +27,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -170,5 +172,25 @@ public class NotesServiceImpl implements NotesService {
     public FileDetails getFileDetails(Integer id) throws Exception {
         FileDetails fileDetails=fileRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("File is not available"));
         return fileDetails;
+    }
+
+    @Override
+    public NotesResponse getAllNotesByUser(Integer userId, Integer pageNo, Integer pageSize) {
+
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        Page<Notes> pageNotes=notesRepository.findByCreatedBy(userId,pageable);
+        List<NotesDto> notesDto=pageNotes.get().map(n->mapper.map(n,NotesDto.class)).toList();
+
+        NotesResponse notes=NotesResponse.builder()
+                .notes(notesDto)
+                .pageNo(pageNotes.getNumber())
+                .pageSize(pageNotes.getSize())
+                .totalElements(pageNotes.getTotalElements())
+                .totalPages(pageNotes.getTotalPages())
+                .isFirst(pageNotes.isFirst())
+                .isLast(pageNotes.isLast())
+                .build();
+
+        return notes;
     }
 }
