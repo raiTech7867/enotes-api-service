@@ -11,6 +11,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
@@ -32,7 +33,8 @@ public class NotesDto {
     @Column(insertable  = false)
     private Date updatedOn;
     private FilesDto fileDetails;
-
+    private Boolean isDeleted;
+    private LocalDateTime deletedOn;
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter

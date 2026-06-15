@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,9 +29,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 public class NotesServiceImpl implements NotesService {
@@ -58,7 +58,12 @@ public class NotesServiceImpl implements NotesService {
 
         NotesDto notesDto = objectMapper.readValue(notes, NotesDto.class);
 
+        notesDto.setIsDeleted(false);
+        notesDto.setDeletedOn(null);
 
+        if (!ObjectUtils.isEmpty(notesDto.getId())) {
+            updateNotes(notesDto, file);
+        }
 
         checkCategoryExist(notesDto.getCategory());
 
@@ -70,51 +75,62 @@ public class NotesServiceImpl implements NotesService {
         if (!ObjectUtils.isEmpty(fileDetails)) {
 
             notesMap.setFileDetails(fileDetails);
-        }else {
-            notesMap.setFileDetails(null);
+        } else {
+            if (ObjectUtils.isEmpty(notesDto.getId())) {
+                notesMap.setFileDetails(null);
+            }
+
         }
         Notes savedNote = notesRepository.save(notesMap);
         if (!ObjectUtils.isEmpty(savedNote)) {
             return true;
-        }else {
+        } else {
             return false;
         }
     }
 
-    private FileDetails saveFileDetails(MultipartFile file) throws IOException {
-        if (!ObjectUtils.isEmpty(file)&&!file.isEmpty()) {
+    private void updateNotes(NotesDto notesDto, MultipartFile file) throws Exception {
 
-            String originalFileName=file.getOriginalFilename();
+        Notes existNote = notesRepository.findById(notesDto.getId()).orElseThrow(() -> new ResourceNotFoundException("Invalid Notes Id"));
+        if (ObjectUtils.isEmpty(file)) {
+            notesDto.setFileDetails(mapper.map(existNote.getFileDetails(), NotesDto.FilesDto.class));
+        }
+    }
+
+    private FileDetails saveFileDetails(MultipartFile file) throws IOException {
+        if (!ObjectUtils.isEmpty(file) && !file.isEmpty()) {
+
+            String originalFileName = file.getOriginalFilename();
             String extension = FilenameUtils.getExtension(originalFileName);
-            List<String> extensionAllow= Arrays.asList("pdf","xlsx","jpg","png");
+            List<String> extensionAllow = Arrays.asList("pdf", "xlsx", "jpg", "png");
             if (!extensionAllow.contains(extension)) {
                 throw new IllegalArgumentException("invalid file format ! Upload only .pdf, .xlsx, .jpg, .png");
             }
 
 
-            String rndString= UUID.randomUUID().toString();
-            String uploadFileNam=rndString+"."+extension;
+            String rndString = UUID.randomUUID().toString();
+            String uploadFileNam = rndString + "." + extension;
 
-            File saveFile=new File(uploadPath);
+            File saveFile = new File(uploadPath);
             if (!saveFile.exists()) {
                 saveFile.mkdir();
             }
             //Path:enotesapiservice/notes/java.pdf
-            String storePath=uploadPath.concat(uploadFileNam);
+            String storePath = uploadPath.concat(uploadFileNam);
 
             //Upload File
-           long upload= Files.copy(file.getInputStream(), Paths.get(storePath));
-           if (upload!=0) {
-               FileDetails fileDetails = new FileDetails();
+            long upload = Files.copy(file.getInputStream(), Paths.get(storePath));
+            if (upload != 0) {
+                FileDetails fileDetails = new FileDetails();
 
-               fileDetails.setOriginalFileName(originalFileName);
-               fileDetails.setDisplayFileName(getDisplayName(originalFileName));
-               fileDetails.setUploadFileName(uploadFileNam);
-               fileDetails.setFileSize(file.getSize());
-               fileDetails.setPath(storePath);
-                 FileDetails saveFileDetails=fileRepository.save(fileDetails);
-                 return saveFileDetails;
-           }
+                fileDetails.setOriginalFileName(originalFileName);
+                fileDetails.setDisplayFileName(getDisplayName(originalFileName));
+                fileDetails.setUploadFileName(uploadFileNam);
+                fileDetails.setFileSize(file.getSize());
+                fileDetails.setPath(storePath);
+                FileDetails saveFileDetails = fileRepository.save(fileDetails);
+                return saveFileDetails;
+            }
         }
         return null;
     }
@@ -123,17 +139,17 @@ public class NotesServiceImpl implements NotesService {
 
         //java_programming_tutorials.pdf
         //java_programming.pdf
-        String extension= FilenameUtils.getExtension(originalFileName);
+        String extension = FilenameUtils.getExtension(originalFileName);
         String fileName = FilenameUtils.removeExtension(originalFileName);
-        if (fileName.length()>8){
-            fileName=fileName.substring(0,7);
+        if (fileName.length() > 8) {
+            fileName = fileName.substring(0, 7);
         }
-        fileName=fileName+"."+extension;
+        fileName = fileName + "." + extension;
         return fileName;
     }
 
-    private void checkCategoryExist(NotesDto.CategoryDto category) throws Exception{
-          categoryRepo.findById(category.getId()).orElseThrow(()->new ResourceNotFoundException("Category id Invalid"));
+    private void checkCategoryExist(NotesDto.CategoryDto category) throws Exception {
+        categoryRepo.findById(category.getId()).orElseThrow(() -> new ResourceNotFoundException("Category id Invalid"));
     }
 
     @Override
@@ -163,14 +179,14 @@ public class NotesServiceImpl implements NotesService {
     public byte[] downLoadFile(FileDetails fileDetails) throws Exception {
 
 
-        InputStream io=new FileInputStream(fileDetails.getPath());
+        InputStream io = new FileInputStream(fileDetails.getPath());
 
         return StreamUtils.copyToByteArray(io);
     }
 
     @Override
     public FileDetails getFileDetails(Integer id) throws Exception {
-        FileDetails fileDetails=fileRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("File is not available"));
+        FileDetails fileDetails = fileRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("File is not available"));
         return fileDetails;
     }
 
@@ -178,10 +194,10 @@ public class NotesServiceImpl implements NotesService {
     public NotesResponse getAllNotesByUser(Integer userId, Integer pageNo, Integer pageSize) {
 
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        Page<Notes> pageNotes=notesRepository.findByCreatedBy(userId,pageable);
-        List<NotesDto> notesDto=pageNotes.get().map(n->mapper.map(n,NotesDto.class)).toList();
+        Page<Notes> pageNotes = notesRepository.findByCreatedByAndIsDeletedFalse(userId, pageable);
+        List<NotesDto> notesDto = pageNotes.get().map(n -> mapper.map(n, NotesDto.class)).toList();
 
-        NotesResponse notes=NotesResponse.builder()
+        NotesResponse notes = NotesResponse.builder()
                 .notes(notesDto)
                 .pageNo(pageNotes.getNumber())
                 .pageSize(pageNotes.getSize())
@@ -192,5 +208,52 @@ public class NotesServiceImpl implements NotesService {
                 .build();
 
         return notes;
+    }
+
+    @Override
+    public void softDeleteNotes(Integer id) throws Exception {
+      Notes notes=  notesRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Notes id invalid! not found Exception"));
+    notes.setIsDeleted(true);
+    notes.setDeletedOn(LocalDateTime.now());
+    notesRepository.save(notes);
+    }
+
+    @Override
+    public void softRestoreNotes(Integer id) throws Exception{
+        Notes notes=  notesRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Notes id invalid! not found Exception"));
+        notes.setIsDeleted(false);
+        notes.setDeletedOn(null);
+        notesRepository.save(notes);
+    }
+
+    @Override
+    public List<NotesDto> getUserRecycleBinNotes(Integer userId) {
+      List<Notes>recycleNotes=  notesRepository.findByCreatedByAndIsDeletedTrue(userId);
+      List<NotesDto> notesDtoList = recycleNotes.stream().map(note -> mapper.map(note, NotesDto.class)).toList();
+        return notesDtoList;
+    }
+
+    @Override
+    public void hardDeleteNotes(Integer id) throws Exception{
+        Notes notes=  notesRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Notes id invalid! not found Exception"));
+
+        if (notes.getIsDeleted()) {
+            notesRepository.delete(notes);
+        }else  {
+            throw new IllegalArgumentException("Sorry you can't hard delete this note");
+        }
+
+    }
+
+    @Override
+    public void emptyRecycleBin(int userId) {
+        List<Notes>recycleNotes=  notesRepository.findByCreatedByAndIsDeletedTrue(userId);
+        if (!CollectionUtils.isEmpty(recycleNotes)) {
+            notesRepository.deleteAll(recycleNotes);
+        }else {
+            throw new IllegalArgumentException("Sorry Recycle View is Empty");
+        }
+
+
     }
 }
