@@ -1,7 +1,9 @@
 package com.raiTech.service.add;
 
+import com.raiTech.dto.FavouriteNoteDto;
 import com.raiTech.dto.NotesDto;
 import com.raiTech.dto.NotesResponse;
+import com.raiTech.entity.FavouriteNote;
 import com.raiTech.entity.FileDetails;
 import com.raiTech.exception.ResourceNotFoundException;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,4 +30,12 @@ public interface NotesService {
     void hardDeleteNotes(Integer id) throws Exception;
 
     void emptyRecycleBin(int userId);
+
+    public void favouriteNotes(Integer noteId) throws Exception;
+
+    public void unFavouriteNotes(Integer noteId) throws Exception;
+
+    public List<FavouriteNoteDto> getUserFavouriteNote();
+
+
 }

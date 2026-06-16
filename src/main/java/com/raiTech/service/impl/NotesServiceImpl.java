@@ -1,11 +1,14 @@
 package com.raiTech.service.impl;
 
+import com.raiTech.dto.FavouriteNoteDto;
 import com.raiTech.dto.NotesDto;
 import com.raiTech.dto.NotesResponse;
+import com.raiTech.entity.FavouriteNote;
 import com.raiTech.entity.FileDetails;
 import com.raiTech.entity.Notes;
 import com.raiTech.exception.ResourceNotFoundException;
 import com.raiTech.repository.Categoryrepository;
+import com.raiTech.repository.FavouriteNoteRepository;
 import com.raiTech.repository.FileRepository;
 import com.raiTech.repository.NotesRepository;
 import com.raiTech.service.add.NotesService;
@@ -36,6 +39,9 @@ import java.util.*;
 public class NotesServiceImpl implements NotesService {
     @Autowired
     private NotesRepository notesRepository;
+
+    @Autowired
+    private FavouriteNoteRepository favouriteNoteRepository;
 
     @Autowired
     private ModelMapper mapper;
@@ -212,15 +218,15 @@ public class NotesServiceImpl implements NotesService {
 
     @Override
     public void softDeleteNotes(Integer id) throws Exception {
-      Notes notes=  notesRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Notes id invalid! not found Exception"));
-    notes.setIsDeleted(true);
-    notes.setDeletedOn(LocalDateTime.now());
-    notesRepository.save(notes);
+        Notes notes = notesRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Notes id invalid! not found Exception"));
+        notes.setIsDeleted(true);
+        notes.setDeletedOn(LocalDateTime.now());
+        notesRepository.save(notes);
     }
 
     @Override
-    public void softRestoreNotes(Integer id) throws Exception{
-        Notes notes=  notesRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Notes id invalid! not found Exception"));
+    public void softRestoreNotes(Integer id) throws Exception {
+        Notes notes = notesRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Notes id invalid! not found Exception"));
         notes.setIsDeleted(false);
         notes.setDeletedOn(null);
         notesRepository.save(notes);
@@ -228,18 +234,18 @@ public class NotesServiceImpl implements NotesService {
 
     @Override
     public List<NotesDto> getUserRecycleBinNotes(Integer userId) {
-      List<Notes>recycleNotes=  notesRepository.findByCreatedByAndIsDeletedTrue(userId);
-      List<NotesDto> notesDtoList = recycleNotes.stream().map(note -> mapper.map(note, NotesDto.class)).toList();
+        List<Notes> recycleNotes = notesRepository.findByCreatedByAndIsDeletedTrue(userId);
+        List<NotesDto> notesDtoList = recycleNotes.stream().map(note -> mapper.map(note, NotesDto.class)).toList();
         return notesDtoList;
     }
 
     @Override
-    public void hardDeleteNotes(Integer id) throws Exception{
-        Notes notes=  notesRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Notes id invalid! not found Exception"));
+    public void hardDeleteNotes(Integer id) throws Exception {
+        Notes notes = notesRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Notes id invalid! not found Exception"));
 
         if (notes.getIsDeleted()) {
             notesRepository.delete(notes);
-        }else  {
+        } else {
             throw new IllegalArgumentException("Sorry you can't hard delete this note");
         }
 
@@ -247,13 +253,35 @@ public class NotesServiceImpl implements NotesService {
 
     @Override
     public void emptyRecycleBin(int userId) {
-        List<Notes>recycleNotes=  notesRepository.findByCreatedByAndIsDeletedTrue(userId);
+        List<Notes> recycleNotes = notesRepository.findByCreatedByAndIsDeletedTrue(userId);
         if (!CollectionUtils.isEmpty(recycleNotes)) {
             notesRepository.deleteAll(recycleNotes);
-        }else {
+        } else {
             throw new IllegalArgumentException("Sorry Recycle View is Empty");
         }
 
 
+    }
+
+    @Override
+    public void favouriteNotes(Integer noteId) throws Exception {
+        int userId = 1;
+        Notes notes = notesRepository.findById(noteId).orElseThrow(() -> new ResourceNotFoundException("Notes id invalid! not found"));
+        FavouriteNote favouriteNote=FavouriteNote.builder().note(notes).userId(userId).build();
+        favouriteNoteRepository.save(favouriteNote);
+    }
+
+    @Override
+    public void unFavouriteNotes(Integer favouriteNoteId) throws Exception{
+       FavouriteNote favNote = favouriteNoteRepository.findById(favouriteNoteId).orElseThrow(() -> new ResourceNotFoundException("Favourite Notes id invalid! not found"));
+       favouriteNoteRepository.delete(favNote);
+    }
+
+    @Override
+    public List<FavouriteNoteDto> getUserFavouriteNote() {
+        int userId = 1;
+        List<FavouriteNote> favouriteNotes=favouriteNoteRepository.findByUserId(userId);
+
+        return favouriteNotes.stream().map(note -> mapper.map(note, FavouriteNoteDto.class)).toList();
     }
 }

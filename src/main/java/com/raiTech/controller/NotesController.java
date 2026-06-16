@@ -1,7 +1,9 @@
 package com.raiTech.controller;
 
+import com.raiTech.dto.FavouriteNoteDto;
 import com.raiTech.dto.NotesDto;
 import com.raiTech.dto.NotesResponse;
+import com.raiTech.entity.FavouriteNote;
 import com.raiTech.entity.FileDetails;
 import com.raiTech.entity.Notes;
 import com.raiTech.service.add.NotesService;
@@ -99,5 +101,23 @@ public class NotesController {
         int userId=1;
         notesService.emptyRecycleBin(userId);
         return CommonUtil.createBuildResponseMessage("Notes Deleted Success", HttpStatus.OK);
+    }
+    @GetMapping("/fav/{noteId}")
+    public ResponseEntity<?> favouritesNote(@PathVariable Integer noteId) throws Exception{
+        notesService.favouriteNotes(noteId);
+        return CommonUtil.createBuildResponseMessage("Notes added to Favourite", HttpStatus.CREATED);
+    }
+    @DeleteMapping("/un-fav/{favNoteId}")
+    public ResponseEntity<?> unFavouritesNote(@PathVariable Integer favNoteId) throws Exception{
+        notesService.unFavouriteNotes(favNoteId);
+        return CommonUtil.createBuildResponseMessage("Removed From Favourites successfully", HttpStatus.OK);
+    }
+    @GetMapping("/fav-note")
+    public ResponseEntity<?> userFavouritesNote() throws Exception{
+       List<FavouriteNoteDto> userFavNote=notesService.getUserFavouriteNote();
+       if (CollectionUtils.isEmpty(userFavNote)){
+           return ResponseEntity.noContent().build();
+       }
+        return CommonUtil.createBuildResponse(userFavNote, HttpStatus.OK);
     }
 }
