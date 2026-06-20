@@ -267,21 +267,35 @@ public class NotesServiceImpl implements NotesService {
     public void favouriteNotes(Integer noteId) throws Exception {
         int userId = 1;
         Notes notes = notesRepository.findById(noteId).orElseThrow(() -> new ResourceNotFoundException("Notes id invalid! not found"));
-        FavouriteNote favouriteNote=FavouriteNote.builder().note(notes).userId(userId).build();
+        FavouriteNote favouriteNote = FavouriteNote.builder().note(notes).userId(userId).build();
         favouriteNoteRepository.save(favouriteNote);
     }
 
     @Override
-    public void unFavouriteNotes(Integer favouriteNoteId) throws Exception{
-       FavouriteNote favNote = favouriteNoteRepository.findById(favouriteNoteId).orElseThrow(() -> new ResourceNotFoundException("Favourite Notes id invalid! not found"));
-       favouriteNoteRepository.delete(favNote);
+    public void unFavouriteNotes(Integer favouriteNoteId) throws Exception {
+        FavouriteNote favNote = favouriteNoteRepository.findById(favouriteNoteId).orElseThrow(() -> new ResourceNotFoundException("Favourite Notes id invalid! not found"));
+        favouriteNoteRepository.delete(favNote);
     }
 
     @Override
     public List<FavouriteNoteDto> getUserFavouriteNote() {
         int userId = 1;
-        List<FavouriteNote> favouriteNotes=favouriteNoteRepository.findByUserId(userId);
+        List<FavouriteNote> favouriteNotes = favouriteNoteRepository.findByUserId(userId);
 
         return favouriteNotes.stream().map(note -> mapper.map(note, FavouriteNoteDto.class)).toList();
+    }
+
+    @Override
+    public Boolean copyNotes(Integer id) throws Exception {
+        Notes notes = notesRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Notes id invalid! not found"));
+        Notes copyNote = Notes.builder().title(notes.getTitle()).description(notes.getDescription()).category(notes.getCategory())
+                .isDeleted(false)
+                .fileDetails(null)
+                .build();
+        Notes saveCopyNotes=  notesRepository.save(copyNote);
+        if (!ObjectUtils.isEmpty(saveCopyNotes)) {
+            return true;
+        }
+        return false;
     }
 }
