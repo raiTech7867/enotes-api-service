@@ -1,6 +1,9 @@
 package com.raiTech.util;
 
 import com.raiTech.dto.CategoryDto;
+import com.raiTech.dto.TodoDto;
+import com.raiTech.enums.TodoStatus;
+import com.raiTech.exception.ResourceNotFoundException;
 import com.raiTech.exception.ValidationException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
@@ -49,6 +52,19 @@ public class Validation {
             throw new ValidationException(error);
         }
 
+    }
+
+    public void todoValidation(TodoDto tododto) throws Exception{
+        TodoDto.StatusDto statusdto = tododto.getStatus();
+        Boolean statusFound=false;
+        for (TodoStatus st:TodoStatus.values()){
+            if (st.getId().equals(statusdto.getId())){
+                statusFound=true;
+            }
+        }
+        if (!statusFound){
+            throw new ResourceNotFoundException("Invalid Status");
+        }
     }
 
 }
