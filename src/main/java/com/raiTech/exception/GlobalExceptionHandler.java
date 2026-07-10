@@ -34,6 +34,11 @@ public class GlobalExceptionHandler {
        // return new ResponseEntity<>(e.getError(),HttpStatus.BAD_REQUEST);
         return CommonUtil.createErrorResponse(e.getError(), HttpStatus.BAD_REQUEST);
     }
+    @ExceptionHandler(SuccessException.class)
+    public ResponseEntity<?> handleSuccessExceptionException(SuccessException e) {
+        // return new ResponseEntity<>(e.getError(),HttpStatus.BAD_REQUEST);
+        return CommonUtil.createBuildResponse(e.getMessage(), HttpStatus.OK);
+    }
     @ExceptionHandler(FileNotFoundException.class)
     public ResponseEntity<?> handleFileNotFoundException(FileNotFoundException e) {
         // return new ResponseEntity<>(e.getError(),HttpStatus.BAD_REQUEST);
