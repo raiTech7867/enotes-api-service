@@ -1,8 +1,11 @@
 package com.raiTech.service.impl;
 
 import com.raiTech.entity.User;
+import com.raiTech.exception.JwtTokenExpireException;
 import com.raiTech.service.add.JwtService;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -60,9 +63,16 @@ public class JwtServiceImpl implements JwtService {
         return claims.get("role").toString();
     }
     private Claims extractAllClaims(String token) {
-
-      Claims claims= Jwts.parser().verifyWith(decrytKey(SECRET_KEY)).build().parseSignedClaims(token).getPayload();
-      return claims;
+  try {
+       return Jwts.parser().verifyWith(decrytKey(SECRET_KEY)).build().parseSignedClaims(token).getPayload();
+  }catch (ExpiredJwtException e){
+      throw new JwtTokenExpireException("Token is expired");
+  }catch (JwtException e){
+      throw new JwtTokenExpireException("Token is invalid");
+  }
+  catch (Exception e){
+     throw e;
+  }
     }
 
     private SecretKey decrytKey(String secretKey) {

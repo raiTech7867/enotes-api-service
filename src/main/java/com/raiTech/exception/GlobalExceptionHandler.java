@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.io.FileNotFoundException;
+import java.nio.file.AccessDeniedException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -15,6 +16,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> handleException(Exception e) {
       //  return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
         return CommonUtil.createErrorResponseMessage(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<?> handleAccessDeniedException(AccessDeniedException e) {
+        //  return new ResponseEntity<>(e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+        return CommonUtil.createErrorResponseMessage(e.getMessage(), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(NullPointerException.class)
@@ -38,7 +45,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(SuccessException.class)
     public ResponseEntity<?> handleSuccessExceptionException(SuccessException e) {
         // return new ResponseEntity<>(e.getError(),HttpStatus.BAD_REQUEST);
-        return CommonUtil.createBuildResponse(e.getMessage(), HttpStatus.OK);
+        return CommonUtil.createErrorResponseMessage(e.getMessage(), HttpStatus.OK);
     }
     @ExceptionHandler(FileNotFoundException.class)
     public ResponseEntity<?> handleFileNotFoundException(FileNotFoundException e) {
