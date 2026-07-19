@@ -6,6 +6,7 @@ import com.raiTech.enums.TodoStatus;
 import com.raiTech.exception.ResourceNotFoundException;
 import com.raiTech.repository.TodoRepository;
 import com.raiTech.service.add.TodoService;
+import com.raiTech.util.CommonUtil;
 import com.raiTech.util.Validation;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +60,7 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     public List<TodoDto> getTodoByUser() {
-        Integer userId=1;
+        Integer userId= CommonUtil.getLoggedInUser().getId();
         List<Todo> todos=todoRepository.findByCreatedBy(userId);
         return todos.stream().map((td->mapper.map(td,TodoDto.class))).toList();
     }

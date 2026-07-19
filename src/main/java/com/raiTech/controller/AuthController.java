@@ -2,8 +2,8 @@ package com.raiTech.controller;
 
 import com.raiTech.dto.LoginRequest;
 import com.raiTech.dto.LoginResponse;
-import com.raiTech.dto.UserDto;
-import com.raiTech.service.add.UserService;
+import com.raiTech.dto.UserRequest;
+import com.raiTech.service.add.AuthService;
 import com.raiTech.util.CommonUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +20,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     @Autowired
-    private UserService userService;
+    private AuthService userService;
 
     @PostMapping("/")
-    public ResponseEntity<?>registerUser(@RequestBody UserDto userDto, HttpServletRequest request) throws Exception{
+    public ResponseEntity<?>registerUser(@RequestBody UserRequest userDto, HttpServletRequest request) throws Exception{
         String url= CommonUtil.getUrl(request);
         Boolean register=userService.register(userDto,url);
         if (register){

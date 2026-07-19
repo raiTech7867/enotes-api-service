@@ -2,7 +2,7 @@ package com.raiTech.util;
 
 import com.raiTech.dto.CategoryDto;
 import com.raiTech.dto.TodoDto;
-import com.raiTech.dto.UserDto;
+import com.raiTech.dto.UserRequest;
 import com.raiTech.enums.TodoStatus;
 import com.raiTech.exception.ExistDataException;
 import com.raiTech.exception.ResourceNotFoundException;
@@ -18,7 +18,6 @@ import org.springframework.util.StringUtils;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @Component
 public class Validation {
@@ -81,7 +80,7 @@ public class Validation {
         }
     }
 
-    public void userValidation(UserDto userdto){
+    public void userValidation(UserRequest userdto){
 
         if (!StringUtils.hasText(userdto.getFirstName())) {
             throw new IllegalArgumentException("First name field is empty");

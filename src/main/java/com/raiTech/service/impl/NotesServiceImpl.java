@@ -12,6 +12,7 @@ import com.raiTech.repository.FavouriteNoteRepository;
 import com.raiTech.repository.FileRepository;
 import com.raiTech.repository.NotesRepository;
 import com.raiTech.service.add.NotesService;
+import com.raiTech.util.CommonUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -234,6 +235,7 @@ public class NotesServiceImpl implements NotesService {
 
     @Override
     public List<NotesDto> getUserRecycleBinNotes(Integer userId) {
+
         List<Notes> recycleNotes = notesRepository.findByCreatedByAndIsDeletedTrue(userId);
         List<NotesDto> notesDtoList = recycleNotes.stream().map(note -> mapper.map(note, NotesDto.class)).toList();
         return notesDtoList;
@@ -279,7 +281,7 @@ public class NotesServiceImpl implements NotesService {
 
     @Override
     public List<FavouriteNoteDto> getUserFavouriteNote() {
-        int userId = 1;
+        int userId = CommonUtil.getLoggedInUser().getId();
         List<FavouriteNote> favouriteNotes = favouriteNoteRepository.findByUserId(userId);
 
         return favouriteNotes.stream().map(note -> mapper.map(note, FavouriteNoteDto.class)).toList();
