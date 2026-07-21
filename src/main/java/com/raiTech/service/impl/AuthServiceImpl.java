@@ -66,7 +66,7 @@ public class AuthServiceImpl implements AuthService {
         User saveUser = userRepository.save(user);
         if (!ObjectUtils.isEmpty(saveUser)) {
             //Send Email
-            emailSend(saveUser, url);
+            emailSendForRegister(saveUser, url);
             return true;
         }
         return false;
@@ -88,7 +88,7 @@ public class AuthServiceImpl implements AuthService {
         return null;
     }
 
-    private void emailSend(User saveUser, String url) throws Exception {
+    private void emailSendForRegister(User saveUser, String url) throws Exception {
         String verificationLink = url + "/api/v1/home/verify?id="
                 + saveUser.getId()
                 + "&vc="
