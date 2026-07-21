@@ -48,6 +48,16 @@ public class NotesController {
         return CommonUtil.createBuildResponse(notes, HttpStatus.OK);
     }
 
+    @GetMapping("/search")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<?> searchNotes(
+            @RequestParam("keyword") String keyword,
+            @RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize) {
+        NotesResponse notes=notesService.getAllNotesBySearch(pageNo,pageSize,keyword);
+        return CommonUtil.createBuildResponse(notes, HttpStatus.OK);
+    }
+
     @GetMapping("/download/{id}")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<?>downLoadFile(@PathVariable Integer id) throws Exception{
@@ -133,6 +143,8 @@ public class NotesController {
        }
         return CommonUtil.createBuildResponse(userFavNote, HttpStatus.OK);
     }
+
+
     @GetMapping("/copy/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<?> copyNotes(@PathVariable Integer id) throws Exception{

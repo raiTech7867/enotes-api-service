@@ -20,6 +20,7 @@ public interface NotesService {
     FileDetails getFileDetails(Integer id) throws Exception;
 
     NotesResponse getAllNotesByUser(Integer userId, Integer pageNo, Integer pageSize);
+    NotesResponse getAllNotesBySearch(Integer pageNo, Integer pageSize,String searchTerm);
 
     void softDeleteNotes(Integer id) throws Exception;
 
