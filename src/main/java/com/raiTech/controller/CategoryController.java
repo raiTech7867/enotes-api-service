@@ -2,6 +2,7 @@ package com.raiTech.controller;
 
 import com.raiTech.dto.CategoryDto;
 import com.raiTech.dto.CategoryResponse;
+import com.raiTech.endpoint.CategoryControllerEndPoint;
 import com.raiTech.entity.Category;
 import com.raiTech.service.add.CategoryService;
 import com.raiTech.util.CommonUtil;
@@ -16,14 +17,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/category")
-public class CategoryController {
+public class CategoryController implements CategoryControllerEndPoint {
     @Autowired
     private CategoryService categoryService;
 
-    @PostMapping("/save")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> saveCategory(@RequestBody CategoryDto categorydto) {
+
+    @PostMapping
+    public ResponseEntity<?> saveCategory( CategoryDto categorydto) {
         Boolean saveCategory = categoryService.saveCategory(categorydto);
         if (saveCategory) {
             return CommonUtil.createBuildResponseMessage("Category saved successfully", HttpStatus.CREATED);
@@ -34,8 +34,7 @@ public class CategoryController {
         }
     }
 
-    @GetMapping("/")
-    @PreAuthorize("hasRole('ADMIN')")
+   @Override
     public ResponseEntity<?> getAllCategory() {
 
         List<Category> allCategory = categoryService.getAllCategory();
@@ -47,8 +46,8 @@ public class CategoryController {
         }
     }
 
-    @GetMapping("/active")
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+
+    @Override
     public ResponseEntity<?> getActiveCategory() {
 
         List<CategoryResponse> activeCategory = categoryService.getActiveCategory();
@@ -60,9 +59,9 @@ public class CategoryController {
         }
     }
 
-    @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getCategoryDetailsById(@PathVariable Integer id) throws Exception{
+
+    @Override
+    public ResponseEntity<?> getCategoryDetailsById(Integer id) throws Exception{
         CategoryDto categoryDto = categoryService.getCategoryById(id);
         if (ObjectUtils.isEmpty(categoryDto)) {
             return CommonUtil.createErrorResponse("Category Not Found with Id="+id, HttpStatus.NOT_FOUND);
@@ -72,9 +71,9 @@ public class CategoryController {
       //  return new ResponseEntity<>(categoryDto, HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> deleteCATEGORYById(@PathVariable Integer id) {
+
+    @Override
+    public ResponseEntity<?> deleteCATEGORYById(Integer id) {
 
         Boolean IsDeleted=categoryService.deleteCategory(id);
         if (IsDeleted) {

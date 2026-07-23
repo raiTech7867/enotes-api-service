@@ -3,6 +3,7 @@ package com.raiTech.controller;
 
 import com.raiTech.dto.PasswordChangeRequest;
 import com.raiTech.dto.UserResponse;
+import com.raiTech.endpoint.UserControllerEndPoint;
 import com.raiTech.entity.User;
 import com.raiTech.service.add.UserService;
 import com.raiTech.util.CommonUtil;
@@ -13,8 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/user")
-public class UserController {
+public class UserController implements UserControllerEndPoint {
 
     @Autowired
     private ModelMapper modelMapper;
@@ -23,14 +23,14 @@ public class UserController {
     private UserService userService;
 
 
-    @GetMapping("/profile")
+   @Override
     public ResponseEntity<?> getProfile() {
         User currentUser = CommonUtil.getLoggedInUser();
         UserResponse userResponse = modelMapper.map(currentUser, UserResponse.class);
         return CommonUtil.createBuildResponse(userResponse, HttpStatus.OK);
     }
 
-    @PostMapping("/chng-pswd")
+    @Override
     public ResponseEntity<?> changePassword(@RequestBody PasswordChangeRequest passwordChangeRequest) {
 
         userService.changePassword(passwordChangeRequest);

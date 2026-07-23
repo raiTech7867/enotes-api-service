@@ -1,6 +1,7 @@
 package com.raiTech.controller;
 
 import com.raiTech.dto.TodoDto;
+import com.raiTech.endpoint.TodoControllerEndPoint;
 import com.raiTech.service.add.TodoService;
 import com.raiTech.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,15 +15,13 @@ import java.util.Collection;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/v1/todo")
-public class TodoController {
+public class TodoController implements TodoControllerEndPoint {
 
     @Autowired
     private TodoService todoService;
 
 
-    @PostMapping("/")
-    @PreAuthorize("hasRole('USER')")
+   @Override
     public ResponseEntity<?>saveTodo(@RequestBody TodoDto todoDto) throws Exception {
         Boolean saveTodo=todoService.saveTodo(todoDto);
         if(saveTodo){
@@ -32,14 +31,13 @@ public class TodoController {
         }
     }
 
-    @GetMapping("/{id}")
-    @PreAuthorize("hasRole('USER')")
+    @Override
     public ResponseEntity<?>getTodoById(@PathVariable Integer id) throws  Exception{
        TodoDto todo=todoService.getTodoById(id);
        return CommonUtil.createBuildResponse(todo,HttpStatus.OK);
     }
-    @GetMapping("/list")
-    @PreAuthorize("hasRole('USER')")
+
+    @Override
     public ResponseEntity<?>getAllTodoByUser() throws  Exception{
         List<TodoDto> todoList=todoService.getTodoByUser();
         if (CollectionUtils.isEmpty(todoList)) {

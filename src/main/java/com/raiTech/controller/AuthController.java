@@ -3,6 +3,7 @@ package com.raiTech.controller;
 import com.raiTech.dto.LoginRequest;
 import com.raiTech.dto.LoginResponse;
 import com.raiTech.dto.UserRequest;
+import com.raiTech.endpoint.AuthControllerEndPoint;
 import com.raiTech.service.add.AuthService;
 import com.raiTech.util.CommonUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,14 +17,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("api/v1/auth")
-public class AuthController {
+public class AuthController implements AuthControllerEndPoint {
 
     @Autowired
     private AuthService userService;
 
-    @PostMapping("/")
-    public ResponseEntity<?>registerUser(@RequestBody UserRequest userDto, HttpServletRequest request) throws Exception{
+
+    @Override
+    public ResponseEntity<?>registerUser( UserRequest userDto, HttpServletRequest request) throws Exception{
         String url= CommonUtil.getUrl(request);
         Boolean register=userService.register(userDto,url);
         if (register){
@@ -31,8 +32,9 @@ public class AuthController {
         }
         return CommonUtil.createErrorResponseMessage("Register Failed", HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    @PostMapping("/login")
-    public ResponseEntity<?>login(@RequestBody LoginRequest loginRequest) throws Exception{
+
+    @Override
+    public ResponseEntity<?>login(LoginRequest loginRequest) throws Exception{
 
        LoginResponse loginResponse= userService.login(loginRequest);
        if (ObjectUtils.isEmpty(loginResponse)){
