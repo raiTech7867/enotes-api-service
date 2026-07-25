@@ -7,6 +7,7 @@ import com.raiTech.entity.Category;
 import com.raiTech.service.add.CategoryService;
 import com.raiTech.util.CommonUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -35,6 +36,7 @@ public class CategoryController implements CategoryControllerEndPoint {
     }
 
    @Override
+   @Cacheable("allCategory")
     public ResponseEntity<?> getAllCategory() {
 
         List<Category> allCategory = categoryService.getAllCategory();
@@ -48,6 +50,7 @@ public class CategoryController implements CategoryControllerEndPoint {
 
 
     @Override
+    @Cacheable("activeCategory")
     public ResponseEntity<?> getActiveCategory() {
 
         List<CategoryResponse> activeCategory = categoryService.getActiveCategory();
