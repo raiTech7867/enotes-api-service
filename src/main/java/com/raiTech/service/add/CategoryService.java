@@ -1,4 +1,4 @@
-package com.raiTech.service.impl;
+package com.raiTech.service.add;
 
 import java.util.List;
 
@@ -13,4 +13,8 @@ public interface CategoryService {
 
 
     List<CategoryResponse> getActiveCategory();
+
+    CategoryDto getCategoryById(Integer id) throws Exception;
+
+    Boolean deleteCategory(Integer id);
 }
